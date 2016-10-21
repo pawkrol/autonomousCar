@@ -1,9 +1,7 @@
-package org.pawkrol.academic.ai.nncar.graphic.render;
+package org.pawkrol.academic.ai.nncar.engine.render;
 
 import org.joml.Vector3f;
-import org.pawkrol.academic.ai.nncar.graphic.utils.MouseListener;
-
-import static org.lwjgl.glfw.GLFW.*;
+import org.pawkrol.academic.ai.nncar.engine.utils.MouseListener;
 
 /**
  * Created by Pawel on 2016-07-04.
@@ -18,6 +16,7 @@ public class Camera {
     private float yaw;
     private float pitch;
 
+    private float pitchLimit;
     private float tiltFactor;
     private float speed;
 
@@ -40,8 +39,9 @@ public class Camera {
         front = new Vector3f(0, 0, 0);
         up = new Vector3f(0, 1, 0);
 
+        pitchLimit = 1.5f;
         tiltFactor = .8f;
-        speed = .3f;
+        speed = .1f;
     }
 
     public void update(){
@@ -49,6 +49,16 @@ public class Camera {
 
         yaw = mouseListener.getHorizontalAngle();
         pitch = mouseListener.getVerticalAngle();
+
+        if (pitch > pitchLimit) {
+            pitch = pitchLimit;
+            mouseListener.setVerticalAngle(pitch);
+        }
+
+        if (pitch < -pitchLimit) {
+            pitch = -pitchLimit;
+            mouseListener.setVerticalAngle(pitch);
+        }
 
         yaw *= tiltFactor;
         pitch *= tiltFactor;
@@ -61,7 +71,7 @@ public class Camera {
 
     public void move(MoveDir dir){
         if (dir == MoveDir.FRONT){
-            position.add(front.x * speed, front.y * speed, front.z * speed); //cameraFront.y => 0.f -> for game walk
+            position.add(front.x * speed, front.y * speed, front.z * speed); //front.y => 0.f -> for game walk
         } else if (dir == MoveDir.BACK){
             position.sub(front.x * speed, front.y * speed, front.z * speed);
         }
@@ -75,6 +85,10 @@ public class Camera {
 
     public Vector3f getPosition() {
         return position;
+    }
+
+    public void setPosition(Vector3f position) {
+        this.position = position;
     }
 
     public Vector3f getRotation() {

@@ -1,9 +1,9 @@
-package org.pawkrol.academic.ai.nncar.graphic.render.loaders;
+package org.pawkrol.academic.ai.nncar.engine.render.loaders;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.pawkrol.academic.ai.nncar.graphic.render.renderables.Mesh;
-import org.pawkrol.academic.ai.nncar.graphic.utils.PathObtainer;
+import org.pawkrol.academic.ai.nncar.engine.render.renderables.Mesh;
+import org.pawkrol.academic.ai.nncar.engine.utils.PathObtainer;
 
 import java.io.BufferedReader;
 import java.io.File;

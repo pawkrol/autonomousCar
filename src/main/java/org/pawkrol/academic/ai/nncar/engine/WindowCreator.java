@@ -1,9 +1,10 @@
-package org.pawkrol.academic.ai.nncar.graphic;
+package org.pawkrol.academic.ai.nncar.engine;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.pawkrol.academic.ai.nncar.graphic.render.RenderManager;
+import org.pawkrol.academic.ai.nncar.engine.render.RenderManager;
+import org.pawkrol.academic.ai.nncar.engine.utils.KeyboardListener;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -16,6 +17,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class WindowCreator {
 
     private final RenderManager renderManager;
+    private final KeyboardListener keyboardListener;
 
     private String title;
     private long window;
@@ -25,6 +27,8 @@ public class WindowCreator {
     public WindowCreator(String title, int width, int height, RenderManager renderManager){
         WIDTH = width;
         HEIGHT = height;
+
+        keyboardListener = new KeyboardListener();
 
         this.title = title;
         this.renderManager = renderManager;
@@ -64,7 +68,7 @@ public class WindowCreator {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
-        glfwSetKeyCallback(window, renderManager);
+        glfwSetKeyCallback(window, keyboardListener);
 
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         glfwSetWindowPos(window, (vidmode.width() - WIDTH) / 2, (vidmode.height() - HEIGHT) / 2);
@@ -76,7 +80,7 @@ public class WindowCreator {
 
         GL.createCapabilities();
 
-        renderManager.init(window);
+        renderManager.init(window, keyboardListener);
     }
 
     private void loop(){

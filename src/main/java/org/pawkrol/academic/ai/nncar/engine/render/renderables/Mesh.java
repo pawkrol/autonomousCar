@@ -1,8 +1,8 @@
-package org.pawkrol.academic.ai.nncar.graphic.render.renderables;
+package org.pawkrol.academic.ai.nncar.engine.render.renderables;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL15;
-import org.pawkrol.academic.ai.nncar.graphic.render.Texture;
+import org.pawkrol.academic.ai.nncar.engine.render.Texture;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;

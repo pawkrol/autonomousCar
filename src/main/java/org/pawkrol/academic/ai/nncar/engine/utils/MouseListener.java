@@ -1,4 +1,4 @@
-package org.pawkrol.academic.ai.nncar.graphic.utils;
+package org.pawkrol.academic.ai.nncar.engine.utils;
 
 import org.joml.Vector2d;
 import org.lwjgl.glfw.GLFWCursorEnterCallback;
@@ -61,7 +61,15 @@ public class MouseListener {
         return verticalAngle;
     }
 
+    public void setVerticalAngle(float verticalAngle) {
+        this.verticalAngle = verticalAngle;
+    }
+
     public float getHorizontalAngle() {
         return horizontalAngle;
+    }
+
+    public void setHorizontalAngle(float horizontalAngle) {
+        this.horizontalAngle = horizontalAngle;
     }
 }

@@ -1,4 +1,4 @@
-package org.pawkrol.academic.ai.nncar.graphic.render.loaders;
+package org.pawkrol.academic.ai.nncar.engine.render.loaders;
 
 /**
  * Created by Pawel on 2016-07-09.

@@ -1,15 +1,15 @@
-package org.pawkrol.academic.ai.nncar.graphic.render;
+package org.pawkrol.academic.ai.nncar.engine.render;
 
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
-import org.lwjgl.glfw.GLFWKeyCallbackI;
-import org.pawkrol.academic.ai.nncar.graphic.render.loaders.OBJLoader;
-import org.pawkrol.academic.ai.nncar.graphic.render.math.Matrices;
-import org.pawkrol.academic.ai.nncar.graphic.render.renderables.Mesh;
-import org.pawkrol.academic.ai.nncar.graphic.render.renderables.RenderObject;
-import org.pawkrol.academic.ai.nncar.graphic.render.shaders.DefaultShader;
-import org.pawkrol.academic.ai.nncar.graphic.utils.Image;
-import org.pawkrol.academic.ai.nncar.graphic.utils.MouseListener;
+import org.pawkrol.academic.ai.nncar.engine.render.loaders.OBJLoader;
+import org.pawkrol.academic.ai.nncar.engine.render.math.Matrices;
+import org.pawkrol.academic.ai.nncar.engine.render.renderables.Mesh;
+import org.pawkrol.academic.ai.nncar.engine.render.renderables.RenderObject;
+import org.pawkrol.academic.ai.nncar.engine.render.shaders.DefaultShader;
+import org.pawkrol.academic.ai.nncar.engine.utils.Image;
+import org.pawkrol.academic.ai.nncar.engine.utils.KeyboardListener;
+import org.pawkrol.academic.ai.nncar.engine.utils.MouseListener;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -17,11 +17,13 @@ import static org.lwjgl.opengl.GL11.*;
 /**
  * Created by Pawel on 2016-10-19.
  */
-public class RenderManager implements GLFWKeyCallbackI{
+public class RenderManager{
 
     private static final float FOV = (float) Math.toRadians(60.f);
     private static final float NEAR_PLANE = .01f;
     private static final float FAR_PLANE = 1000.f;
+
+    private KeyboardListener keyboardListener;
 
     private float width;
     private float height;
@@ -29,13 +31,13 @@ public class RenderManager implements GLFWKeyCallbackI{
     private DefaultShader defaultShader;
     private Camera camera;
 
-    private boolean[] keys = new boolean[1024];
-
     private RenderObject renderObject;
 
-    public void init(long windowHandle){
+    public void init(long windowHandle, KeyboardListener keyboardListener){
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
+
+        this.keyboardListener = keyboardListener;
 
         camera = new Camera(new MouseListener(windowHandle));
 
@@ -96,29 +98,16 @@ public class RenderManager implements GLFWKeyCallbackI{
         this.height = height;
     }
 
-    @Override
-    public void invoke(long window, int key, int scancode, int action, int mods) {
-        if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE){
-            glfwSetWindowShouldClose(window, true);
-        }
-
-        if (action == GLFW_PRESS){
-            keys[key] = true;
-        } else if (action == GLFW_RELEASE){
-            keys[key] = false;
-        }
-    }
-
     private void checkMove(){
-        if (keys[GLFW_KEY_W]){
+        if (keyboardListener.isPressed(GLFW_KEY_W)){
             camera.move(Camera.MoveDir.FRONT);
-        } else if (keys[GLFW_KEY_S]){
+        } else if (keyboardListener.isPressed(GLFW_KEY_S)){
             camera.move(Camera.MoveDir.BACK);
         }
 
-        if (keys[GLFW_KEY_A]){
+        if (keyboardListener.isPressed(GLFW_KEY_A)){
             camera.move(Camera.MoveDir.RIGHT);
-        } else if (keys[GLFW_KEY_D]){
+        } else if (keyboardListener.isPressed(GLFW_KEY_D)){
             camera.move(Camera.MoveDir.LEFT);
         }
     }

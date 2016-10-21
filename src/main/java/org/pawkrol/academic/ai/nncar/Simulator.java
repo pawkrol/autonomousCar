@@ -1,7 +1,7 @@
 package org.pawkrol.academic.ai.nncar;
 
-import org.pawkrol.academic.ai.nncar.graphic.WindowCreator;
-import org.pawkrol.academic.ai.nncar.graphic.render.RenderManager;
+import org.pawkrol.academic.ai.nncar.engine.WindowCreator;
+import org.pawkrol.academic.ai.nncar.engine.render.RenderManager;
 
 /**
  * Created by Pawel on 2016-10-18.

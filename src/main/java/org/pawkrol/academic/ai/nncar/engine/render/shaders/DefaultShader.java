@@ -1,10 +1,10 @@
-package org.pawkrol.academic.ai.nncar.graphic.render.shaders;
+package org.pawkrol.academic.ai.nncar.engine.render.shaders;
 
 import org.joml.Matrix4f;
 
 import java.nio.file.Path;
 
-import static org.pawkrol.academic.ai.nncar.graphic.utils.PathObtainer.getProperPath;
+import static org.pawkrol.academic.ai.nncar.engine.utils.PathObtainer.getProperPath;
 
 /**
  * Created by Pawel on 2016-10-19.

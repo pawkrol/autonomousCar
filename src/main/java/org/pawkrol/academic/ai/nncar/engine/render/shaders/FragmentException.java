@@ -1,4 +1,4 @@
-package org.pawkrol.academic.ai.nncar.graphic.render.shaders;
+package org.pawkrol.academic.ai.nncar.engine.render.shaders;
 
 /**
  * Created by Pawel on 2016-07-01.

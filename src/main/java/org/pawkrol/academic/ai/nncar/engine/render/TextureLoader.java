@@ -1,6 +1,6 @@
-package org.pawkrol.academic.ai.nncar.graphic.render;
+package org.pawkrol.academic.ai.nncar.engine.render;
 
-import org.pawkrol.academic.ai.nncar.graphic.utils.Image;
+import org.pawkrol.academic.ai.nncar.engine.utils.Image;
 
 import java.util.ArrayList;
 import java.util.List;

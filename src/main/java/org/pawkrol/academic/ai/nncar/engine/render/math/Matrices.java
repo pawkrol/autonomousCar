@@ -1,9 +1,9 @@
-package org.pawkrol.academic.ai.nncar.graphic.render.math;
+package org.pawkrol.academic.ai.nncar.engine.render.math;
 
 import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.pawkrol.academic.ai.nncar.graphic.render.Camera;
+import org.pawkrol.academic.ai.nncar.engine.render.Camera;
 
 /**
  * Created by Pawel on 2016-07-03.

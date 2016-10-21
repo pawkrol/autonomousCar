@@ -1,4 +1,4 @@
-package org.pawkrol.academic.ai.nncar.graphic.render.renderables;
+package org.pawkrol.academic.ai.nncar.engine.render.renderables;
 
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;

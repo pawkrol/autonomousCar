@@ -1,4 +1,4 @@
-package org.pawkrol.academic.ai.nncar.graphic.utils;
+package org.pawkrol.academic.ai.nncar.engine.utils;
 
 import java.nio.ByteBuffer;
 
