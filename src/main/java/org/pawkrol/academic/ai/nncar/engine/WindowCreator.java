@@ -43,6 +43,8 @@ public class WindowCreator {
 
             glfwFreeCallbacks(window);
             glfwDestroyWindow(window);
+        } catch(Exception e){
+            e.printStackTrace();
         } finally {
             renderManager.clean();
 
@@ -75,7 +77,7 @@ public class WindowCreator {
         glfwSetWindowPos(window, (vidmode.width() - WIDTH) / 2, (vidmode.height() - HEIGHT) / 2);
 
         glfwMakeContextCurrent(window);
-        glfwSwapInterval(0);
+        glfwSwapInterval(1);
 
         glfwShowWindow(window);
 

@@ -130,7 +130,7 @@ public class RenderManager{
 
     private RenderObject createRoadObject(){
         Mesh carMesh = OBJLoader.load("objects/road.obj");
-        carMesh.setTexture(TextureLoader.loadTexture("textures/road.jpg", Image.Type.TYPE_ALPHA));
+        carMesh.setTexture(TextureLoader.loadTexture("textures/road.png", Image.Type.TYPE_ALPHA));
         return new RenderObject(
                 carMesh,
                 new Vector3f(0, 0, 0),

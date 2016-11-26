@@ -77,7 +77,6 @@ public abstract class ShaderProgram {
         try {
             vertexShaderID = loadShader(vertexShader, GL_VERTEX_SHADER);
             fragmentShaderID = loadShader(fragmentShader, GL_FRAGMENT_SHADER);
-
             createProgram();
             setUpProgram();
 
