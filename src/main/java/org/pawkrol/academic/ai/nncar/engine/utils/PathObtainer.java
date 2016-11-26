@@ -14,7 +14,7 @@ public class PathObtainer {
     public static Path getProperPath(@NotNull String res){
         URL url = PathObtainer.class.getClassLoader().getResource(res);
         if (url != null){
-            return Paths.get(url.getPath().replaceFirst("/", ""));
+            return Paths.get(url.getPath()/*.replaceFirst("/", "")*/);
         } else {
             return null;
         }
@@ -23,7 +23,7 @@ public class PathObtainer {
     public static String getProperPathString(@NotNull String res){
         URL url = PathObtainer.class.getClassLoader().getResource(res);
         if (url != null){
-            return url.getPath().replaceFirst("/", "");
+            return url.getPath()/*.replaceFirst("/", "")*/;
         } else {
             return null;
         }

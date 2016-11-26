@@ -63,6 +63,7 @@ public class WindowCreator {
         glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
+
         window = glfwCreateWindow(WIDTH, HEIGHT, title, NULL, NULL);
         if (window == NULL){
             throw new RuntimeException("Failed to create the GLFW window");
@@ -74,7 +75,7 @@ public class WindowCreator {
         glfwSetWindowPos(window, (vidmode.width() - WIDTH) / 2, (vidmode.height() - HEIGHT) / 2);
 
         glfwMakeContextCurrent(window);
-        glfwSwapInterval(1);
+        glfwSwapInterval(0);
 
         glfwShowWindow(window);
 

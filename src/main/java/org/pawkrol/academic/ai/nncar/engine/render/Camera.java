@@ -41,7 +41,7 @@ public class Camera {
 
         pitchLimit = 1.5f;
         tiltFactor = .8f;
-        speed = .1f;
+        speed = .01f;
     }
 
     public void update(){

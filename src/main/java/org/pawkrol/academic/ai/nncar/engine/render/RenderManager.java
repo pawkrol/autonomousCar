@@ -3,13 +3,16 @@ package org.pawkrol.academic.ai.nncar.engine.render;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 import org.pawkrol.academic.ai.nncar.engine.render.loaders.OBJLoader;
-import org.pawkrol.academic.ai.nncar.engine.render.math.Matrices;
 import org.pawkrol.academic.ai.nncar.engine.render.renderables.Mesh;
+import org.pawkrol.academic.ai.nncar.engine.utils.Image;
+import org.pawkrol.academic.ai.nncar.engine.render.math.Matrices;
 import org.pawkrol.academic.ai.nncar.engine.render.renderables.RenderObject;
 import org.pawkrol.academic.ai.nncar.engine.render.shaders.DefaultShader;
-import org.pawkrol.academic.ai.nncar.engine.utils.Image;
 import org.pawkrol.academic.ai.nncar.engine.utils.KeyboardListener;
 import org.pawkrol.academic.ai.nncar.engine.utils.MouseListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -31,7 +34,8 @@ public class RenderManager{
     private DefaultShader defaultShader;
     private Camera camera;
 
-    private RenderObject renderObject;
+    private List<RenderObject> renderObjects;
+    private RenderObject carObject;
 
     public void init(long windowHandle, KeyboardListener keyboardListener){
         glEnable(GL_CULL_FACE);
@@ -48,14 +52,11 @@ public class RenderManager{
         );
         defaultShader.stop();
 
-        Mesh mesh = OBJLoader.load("models/bucket.obj");
-        mesh.setTexture(TextureLoader.loadTexture("textures/rust.jpg", Image.Type.TYPE_NOALPHA));
-        renderObject = new RenderObject(
-                mesh,
-                new Vector3f(0, 0, 0),
-                new Vector3f(1, 1, 1),
-                new AxisAngle4f(0, 0, 0, 0)
-        );
+        carObject = createCarObject();
+
+        renderObjects = new ArrayList<>();
+        renderObjects.add(carObject);
+        renderObjects.add(createRoadObject());
     }
 
     public void update(){
@@ -70,11 +71,15 @@ public class RenderManager{
 
         defaultShader.start();
         defaultShader.loadViewMatrix(Matrices.crateViewMatrix(camera));
-        defaultShader.loadTransformationMatrix(
-                Matrices.createTransformationMatrix(renderObject.getPosition(),
-                        renderObject.getRotation(), renderObject.getScale())
-        );
-        renderObject.getMesh().render();
+
+        for (RenderObject ro : renderObjects) {
+            defaultShader.loadTransformationMatrix(
+                    Matrices.createTransformationMatrix(ro.getPosition(),
+                            ro.getRotation(), ro.getScale())
+            );
+            ro.getMesh().render();
+        }
+
         defaultShader.stop();
     }
 
@@ -110,5 +115,27 @@ public class RenderManager{
         } else if (keyboardListener.isPressed(GLFW_KEY_D)){
             camera.move(Camera.MoveDir.LEFT);
         }
+    }
+
+    private RenderObject createCarObject(){
+        Mesh carMesh = OBJLoader.load("objects/random.obj");
+        carMesh.setTexture(TextureLoader.loadTexture("textures/rust.jpg", Image.Type.TYPE_NOALPHA));
+        return new RenderObject(
+                carMesh,
+                new Vector3f(0, 0, 0),
+                new Vector3f(.2f, .2f, .2f),
+                new AxisAngle4f(0, 0, 0, 0)
+        );
+    }
+
+    private RenderObject createRoadObject(){
+        Mesh carMesh = OBJLoader.load("objects/road.obj");
+        carMesh.setTexture(TextureLoader.loadTexture("textures/road.jpg", Image.Type.TYPE_ALPHA));
+        return new RenderObject(
+                carMesh,
+                new Vector3f(0, 0, 0),
+                new Vector3f(1f, 1f, 1f),
+                new AxisAngle4f(0, 0, 0, 0)
+        );
     }
 }

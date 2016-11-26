@@ -4,11 +4,11 @@ import org.pawkrol.academic.ai.nncar.engine.WindowCreator;
 import org.pawkrol.academic.ai.nncar.engine.render.RenderManager;
 
 /**
- * Created by Pawel on 2016-10-18.
+ * Created by pawkrol on 11/14/16.
  */
 public class Simulator {
 
-    public static void main(String[] args){
+    public void init(){
         RenderManager renderManager = new RenderManager();
         new WindowCreator("Autonomous car simulator", 1280, 720, renderManager).create();
     }
