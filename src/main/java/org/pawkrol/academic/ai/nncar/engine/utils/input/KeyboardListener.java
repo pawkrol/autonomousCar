@@ -1,6 +1,9 @@
-package org.pawkrol.academic.ai.nncar.engine.utils;
+package org.pawkrol.academic.ai.nncar.engine.utils.input;
 
 import org.lwjgl.glfw.GLFWKeyCallbackI;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
@@ -10,6 +13,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
  */
 public class KeyboardListener implements GLFWKeyCallbackI {
 
+    private List<OnKeyReleaseAction> releaseActions = new ArrayList<>();
     private boolean[] keys = new boolean[1024];
 
     @Override
@@ -22,10 +26,18 @@ public class KeyboardListener implements GLFWKeyCallbackI {
             keys[key] = true;
         } else if (action == GLFW_RELEASE){
             keys[key] = false;
+
+            for (OnKeyReleaseAction r : releaseActions){
+                r.onRelease(key);
+            }
         }
     }
 
     public boolean isPressed(int key){
         return keys[key];
+    }
+
+    public void registerOnReleaseAction(OnKeyReleaseAction action){
+        releaseActions.add(action);
     }
 }

@@ -8,8 +8,9 @@ import org.pawkrol.academic.ai.nncar.engine.utils.Image;
 import org.pawkrol.academic.ai.nncar.engine.render.math.Matrices;
 import org.pawkrol.academic.ai.nncar.engine.render.renderables.RenderObject;
 import org.pawkrol.academic.ai.nncar.engine.render.shaders.DefaultShader;
-import org.pawkrol.academic.ai.nncar.engine.utils.KeyboardListener;
-import org.pawkrol.academic.ai.nncar.engine.utils.MouseListener;
+import org.pawkrol.academic.ai.nncar.engine.utils.ScreenGrabber;
+import org.pawkrol.academic.ai.nncar.engine.utils.input.KeyboardListener;
+import org.pawkrol.academic.ai.nncar.engine.utils.input.MouseListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +32,13 @@ public class RenderManager{
     private float width;
     private float height;
 
+    int lastKey = GLFW_KEY_W;
+
+    private FrameBuffer frameBuffer;
     private DefaultShader defaultShader;
     private Camera camera;
+
+    private ScreenGrabber grabber;
 
     private List<RenderObject> renderObjects;
     private RenderObject carObject;
@@ -44,6 +50,8 @@ public class RenderManager{
         this.keyboardListener = keyboardListener;
 
         camera = new Camera(new MouseListener(windowHandle));
+
+        frameBuffer = new FrameBuffer(1280, 720);
 
         defaultShader = new DefaultShader();
         defaultShader.start();
@@ -57,30 +65,25 @@ public class RenderManager{
         renderObjects = new ArrayList<>();
         renderObjects.add(carObject);
         renderObjects.add(createRoadObject());
+
+        keyboardListener.registerOnReleaseAction(this::keyReleaseListener);
+
+        grabber = new ScreenGrabber(40, 1f);
+        grabber.init();
     }
 
-    public void update(){
+    public void update(float interval){
         camera.update();
-        checkMove();
+        checkMove(interval);
+//        grabScreen(interval);
     }
 
     public void render(){
-        glEnable(GL_DEPTH_TEST);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(.3f, .7f, .8f, 0.f);
+        frameBuffer.bind();
+        scene();
+        frameBuffer.unbind();
 
-        defaultShader.start();
-        defaultShader.loadViewMatrix(Matrices.crateViewMatrix(camera));
-
-        for (RenderObject ro : renderObjects) {
-            defaultShader.loadTransformationMatrix(
-                    Matrices.createTransformationMatrix(ro.getPosition(),
-                            ro.getRotation(), ro.getScale())
-            );
-            ro.getMesh().render();
-        }
-
-        defaultShader.stop();
+        scene();
     }
 
     public void clean(){
@@ -103,23 +106,58 @@ public class RenderManager{
         this.height = height;
     }
 
-    private void checkMove(){
+    private void scene(){
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(.3f, .7f, .8f, 0.f);
+
+        defaultShader.start();
+        defaultShader.loadViewMatrix(Matrices.crateViewMatrix(camera));
+
+        for (RenderObject ro : renderObjects) {
+            defaultShader.loadTransformationMatrix(
+                    Matrices.createTransformationMatrix(ro.getPosition(),
+                            ro.getRotation(), ro.getScale())
+            );
+            ro.getMesh().render();
+        }
+
+        defaultShader.stop();
+    }
+
+    private void checkMove(float interval){
         if (keyboardListener.isPressed(GLFW_KEY_W)){
-            camera.move(Camera.MoveDir.FRONT);
+            camera.move(Camera.MoveDir.FRONT, interval);
         } else if (keyboardListener.isPressed(GLFW_KEY_S)){
-            camera.move(Camera.MoveDir.BACK);
+            camera.move(Camera.MoveDir.BACK, interval);
         }
 
         if (keyboardListener.isPressed(GLFW_KEY_A)){
-            camera.move(Camera.MoveDir.RIGHT);
+            camera.move(Camera.MoveDir.RIGHT, interval);
         } else if (keyboardListener.isPressed(GLFW_KEY_D)){
-            camera.move(Camera.MoveDir.LEFT);
+            camera.move(Camera.MoveDir.LEFT, interval);
         }
+    }
+
+    private void grabScreen(float interval){
+        if (keyboardListener.isPressed(GLFW_KEY_W)){
+            lastKey = GLFW_KEY_W;
+        } else if (keyboardListener.isPressed(GLFW_KEY_S)){
+            lastKey = GLFW_KEY_S;
+        }
+
+        if (keyboardListener.isPressed(GLFW_KEY_A)){
+            lastKey = GLFW_KEY_A;
+        } else if (keyboardListener.isPressed(GLFW_KEY_D)){
+            lastKey = GLFW_KEY_D;
+        }
+
+        grabber.invoke(interval, lastKey);
     }
 
     private RenderObject createCarObject(){
         Mesh carMesh = OBJLoader.load("objects/random.obj");
-        carMesh.setTexture(TextureLoader.loadTexture("textures/rust.jpg", Image.Type.TYPE_NOALPHA));
+        carMesh.setTexture(TextureLoader.loadTexture("textures/arrow.png", Image.Type.TYPE_NOALPHA));
         return new RenderObject(
                 carMesh,
                 new Vector3f(0, 0, 0),
@@ -137,5 +175,11 @@ public class RenderManager{
                 new Vector3f(1f, 1f, 1f),
                 new AxisAngle4f(0, 0, 0, 0)
         );
+    }
+
+    private void keyReleaseListener(int key){
+        if (key == GLFW_KEY_SPACE){
+            camera.switchMode();
+        }
     }
 }

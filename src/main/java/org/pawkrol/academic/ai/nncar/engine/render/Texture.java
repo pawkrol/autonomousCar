@@ -9,6 +9,10 @@ public class Texture extends Image {
 
     private final int id;
 
+    public Texture(int id){
+        this.id = id;
+    }
+
     public Texture(String source, int id, Type type){
         super(source, type);
 

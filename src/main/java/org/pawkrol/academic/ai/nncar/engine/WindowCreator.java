@@ -4,7 +4,8 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.pawkrol.academic.ai.nncar.engine.render.RenderManager;
-import org.pawkrol.academic.ai.nncar.engine.utils.KeyboardListener;
+import org.pawkrol.academic.ai.nncar.engine.utils.Timer;
+import org.pawkrol.academic.ai.nncar.engine.utils.input.KeyboardListener;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -16,13 +17,19 @@ import static org.lwjgl.system.MemoryUtil.NULL;
  */
 public class WindowCreator {
 
+    private static final float TARGET_FPS = 75;
+    private static final float TARGET_UPS = 30;
+
+    public static int WIDTH;
+    public static int HEIGHT;
+
     private final RenderManager renderManager;
     private final KeyboardListener keyboardListener;
 
+    private Timer timer;
+
     private String title;
     private long window;
-    private int WIDTH;
-    private int HEIGHT;
 
     public WindowCreator(String title, int width, int height, RenderManager renderManager){
         WIDTH = width;
@@ -34,6 +41,8 @@ public class WindowCreator {
         this.renderManager = renderManager;
         renderManager.setWidth(width);
         renderManager.setHeight(height);
+
+        timer = new Timer();
     }
 
     public void create(){
@@ -77,23 +86,50 @@ public class WindowCreator {
         glfwSetWindowPos(window, (vidmode.width() - WIDTH) / 2, (vidmode.height() - HEIGHT) / 2);
 
         glfwMakeContextCurrent(window);
-        glfwSwapInterval(1);
+        glfwSwapInterval(0);
 
         glfwShowWindow(window);
 
         GL.createCapabilities();
 
         renderManager.init(window, keyboardListener);
+
+        timer.init();
     }
 
     private void loop(){
-        while (!glfwWindowShouldClose(window)){
+        float elapsedTime;
+        float accumulator = 0;
+        float interval = 1.f / TARGET_UPS;
 
-            renderManager.update();
+        while (!glfwWindowShouldClose(window)){
+            elapsedTime = timer.getElapsedTime();
+            accumulator += elapsedTime;
+
+            while (accumulator >= interval){
+                renderManager.update(interval);
+                accumulator -= interval;
+            }
+
             renderManager.render();
+
+            sync();
 
             glfwSwapBuffers(window);
             glfwPollEvents();
+        }
+    }
+
+    private void sync(){
+        float loopSlot = 1f / TARGET_FPS;
+        double endTime = timer.getLastLoopTime() + loopSlot;
+
+        while (timer.getTime() < endTime) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

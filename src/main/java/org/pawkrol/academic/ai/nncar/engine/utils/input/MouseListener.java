@@ -1,4 +1,4 @@
-package org.pawkrol.academic.ai.nncar.engine.utils;
+package org.pawkrol.academic.ai.nncar.engine.utils.input;
 
 import org.joml.Vector2d;
 import org.lwjgl.glfw.GLFWCursorEnterCallback;
