@@ -2,6 +2,7 @@ package org.pawkrol.academic.ai.nncar.engine.render;
 
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
+import org.pawkrol.academic.ai.nncar.engine.WindowCreator;
 import org.pawkrol.academic.ai.nncar.engine.render.loaders.OBJLoader;
 import org.pawkrol.academic.ai.nncar.engine.render.renderables.Mesh;
 import org.pawkrol.academic.ai.nncar.engine.utils.Image;
@@ -29,10 +30,7 @@ public class RenderManager{
 
     private KeyboardListener keyboardListener;
 
-    private float width;
-    private float height;
-
-    int lastKey = GLFW_KEY_W;
+    private int lastKey = GLFW_KEY_W;
 
     private FrameBuffer frameBuffer;
     private DefaultShader defaultShader;
@@ -41,7 +39,6 @@ public class RenderManager{
     private ScreenGrabber grabber;
 
     private List<RenderObject> renderObjects;
-    private RenderObject carObject;
 
     public void init(long windowHandle, KeyboardListener keyboardListener){
         glEnable(GL_CULL_FACE);
@@ -51,16 +48,16 @@ public class RenderManager{
 
         camera = new Camera(new MouseListener(windowHandle));
 
-        frameBuffer = new FrameBuffer(1280, 720);
+        frameBuffer = new FrameBuffer(WindowCreator.WIDTH, WindowCreator.HEIGHT);
 
         defaultShader = new DefaultShader();
         defaultShader.start();
         defaultShader.loadProjectionMatrix(
-                Matrices.createProjectionMatrix(width, height, FOV, NEAR_PLANE, FAR_PLANE)
+                Matrices.createProjectionMatrix(WindowCreator.WIDTH, WindowCreator.HEIGHT, FOV, NEAR_PLANE, FAR_PLANE)
         );
         defaultShader.stop();
 
-        carObject = createCarObject();
+        RenderObject carObject = createCarObject();
 
         renderObjects = new ArrayList<>();
         renderObjects.add(carObject);
@@ -89,22 +86,6 @@ public class RenderManager{
     public void clean(){
         defaultShader.clean();
         grabber.clean();
-    }
-
-    public float getWidth() {
-        return width;
-    }
-
-    public void setWidth(float width) {
-        this.width = width;
-    }
-
-    public float getHeight() {
-        return height;
-    }
-
-    public void setHeight(float height) {
-        this.height = height;
     }
 
     private void scene(){

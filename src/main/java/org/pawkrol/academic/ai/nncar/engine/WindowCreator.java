@@ -39,8 +39,6 @@ public class WindowCreator {
 
         this.title = title;
         this.renderManager = renderManager;
-        renderManager.setWidth(width);
-        renderManager.setHeight(height);
 
         timer = new Timer();
     }
