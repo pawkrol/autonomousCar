@@ -75,7 +75,7 @@ public class RenderManager{
     public void update(float interval){
         camera.update();
         checkMove(interval);
-//        grabScreen(interval);
+        grabScreen(interval);
     }
 
     public void render(){
@@ -88,6 +88,7 @@ public class RenderManager{
 
     public void clean(){
         defaultShader.clean();
+        grabber.clean();
     }
 
     public float getWidth() {

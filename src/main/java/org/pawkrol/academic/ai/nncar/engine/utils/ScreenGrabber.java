@@ -4,6 +4,9 @@ import org.lwjgl.glfw.GLFW;
 import org.pawkrol.academic.ai.nncar.engine.WindowCreator;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -20,6 +23,8 @@ public class ScreenGrabber {
 
     private int iterator;
 
+    private ExecutorService executorService;
+
     public ScreenGrabber(int scale, float dt) {
         this.scale = scale;
         this.dt = dt;
@@ -27,6 +32,11 @@ public class ScreenGrabber {
 
     public void init(){
         iterator = 0;
+        executorService = Executors.newFixedThreadPool(4);
+    }
+
+    public void clean(){
+        executorService.shutdown();
     }
 
     public void invoke(float interval, int key){
@@ -49,7 +59,9 @@ public class ScreenGrabber {
         glReadBuffer(GL_COLOR_ATTACHMENT0);
         glReadPixels(0, 0, WindowCreator.WIDTH, WindowCreator.HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
-        Image.encodePNG(pixels, WindowCreator.WIDTH, WindowCreator.HEIGHT, scale, name);
+        executorService.execute(() ->
+                Image.encodePNG(pixels, WindowCreator.WIDTH, WindowCreator.HEIGHT, scale, name)
+        );
     }
 
     private String parseKey(int key){
