@@ -17,6 +17,7 @@ import static org.lwjgl.stb.STBImage.*;
 public class Image {
 
     public enum Type{
+        TYPE_GREY(1),
         TYPE_NOALPHA(3),
         TYPE_ALPHA(4);
 
@@ -75,28 +76,28 @@ public class Image {
 
     public static void encodePNG(ByteBuffer buffer, int width, int height, int scale, String name) {
         java.awt.image.BufferedImage image =
-                new java.awt.image.BufferedImage(width / scale, height / scale, BufferedImage.TYPE_INT_RGB);
+                new java.awt.image.BufferedImage(width / scale, height / scale, BufferedImage.TYPE_BYTE_GRAY);
 
-        for(int x = 0; x < width; x += scale)
-        {
-            for(int y = 0; y < height; y += scale)
-            {
+        for(int x = 0; x < width; x += scale) {
+            for(int y = 0; y < height; y += scale) {
+
                 int i = (x + (width * y)) * 3;
                 int r = buffer.get(i) & 0xFF;
                 int g = buffer.get(i + 1) & 0xFF;
                 int b = buffer.get(i + 2) & 0xFF;
-                image.setRGB(x / scale, (height - (y + 1)) / scale, b | g << 8 | r << 16);
+//                image.setRGB(x / scale, (height - (y + 1)) / scale, b | g << 8 | r << 16);
+                image.setRGB(x / scale, (height - (y + 1)) / scale, (b | g << 8 | r << 16) / 3);
             }
         }
 
         try {
-            ImageIO.write(image, "PNG", new File("screens/" + name));
+            ImageIO.write(image, "PNG", new File("output/screens/" + name));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void load(String source, Type type) throws RuntimeException{
+    public void load(String source, Type type) throws RuntimeException{
         IntBuffer w = BufferUtils.createIntBuffer(1);
         IntBuffer h = BufferUtils.createIntBuffer(1);
         IntBuffer comp = BufferUtils.createIntBuffer(1);

@@ -2,6 +2,8 @@ package org.pawkrol.academic.ai.nncar.neurons.network;
 
 import org.pawkrol.academic.ai.nncar.neurons.functions.ActivationFunction;
 
+import java.io.*;
+
 public class NetManager {
 
     private ActivationFunction function;
@@ -88,6 +90,56 @@ public class NetManager {
             l.updateWeights(input);
             input = l.getOutputs().clone();
         }
+    }
+
+    public void loadWeights(File weights) throws IOException {
+        FileReader fileReader = new FileReader(weights);
+        BufferedReader reader = new BufferedReader(fileReader);
+
+        String line;
+        for (Layer l : layers){
+            float[][] ws = new float[l.getSize()][];
+
+            for (int i = 0; i < l.getSize(); i++){
+                line = reader.readLine();
+                String tokens[] = line.split("\\s+");
+
+                ws[i] = new float[tokens.length];
+                for (int j = 0; j < tokens.length; j++) {
+                    ws[i][j] = Float.parseFloat(tokens[j]);
+                }
+
+                l.setWeights(ws);
+            }
+
+        }
+    }
+
+    public void saveWeights(String location) throws IOException {
+        File weightsFile = new File(location);
+        if (weightsFile.exists()){
+            weightsFile.delete();
+        }
+
+        FileWriter writer = new FileWriter(weightsFile);
+        BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+        for (Layer l : layers){
+            PerceptronContainer[] containers = l.getPerceptronContainers();
+            for (PerceptronContainer c : containers){
+                float[] ws = c.getPerceptron().getWeights();
+
+                String line = "";
+                for (float w : ws){
+                    line += w + " ";
+                }
+
+                bufferedWriter.write(line);
+                bufferedWriter.newLine();
+            }
+        }
+
+        bufferedWriter.flush();
     }
 
     public float getError(){

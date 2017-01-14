@@ -1,10 +1,9 @@
 package org.pawkrol.academic.ai.nncar.engine.utils;
 
-import org.lwjgl.glfw.GLFW;
+import com.sun.istack.internal.Nullable;
 import org.pawkrol.academic.ai.nncar.engine.WindowCreator;
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,18 +38,35 @@ public class ScreenGrabber {
         executorService.shutdown();
     }
 
-    public void invoke(float interval, int key){
+    @Nullable
+    public ByteBuffer invoke(float interval){
+        return invoke(interval, null, false);
+    }
+
+    @Nullable
+    public ByteBuffer invoke(float interval, int[] keys, boolean save){
         elapsedTime += interval;
+        ByteBuffer pixels = null;
 
         if (elapsedTime >= dt * 10){
-            makeScreenshot(iterator + "_" + parseKey(key) + ".png");
-            iterator++;
+            pixels = makeScreenshot();
+
+            if (save) {
+                saveScreenshot(pixels, iterator + "_" + parseKeys(keys) + ".png");
+                iterator++;
+            }
 
             elapsedTime = 0;
         }
+
+        return pixels;
     }
 
-    private void makeScreenshot(String name){
+    public void setDt(float dt) {
+        this.dt = dt;
+    }
+
+    private ByteBuffer makeScreenshot(){
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -59,19 +75,40 @@ public class ScreenGrabber {
         glReadBuffer(GL_COLOR_ATTACHMENT0);
         glReadPixels(0, 0, WindowCreator.WIDTH, WindowCreator.HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
+        return pixels;
+    }
+
+    private void saveScreenshot(ByteBuffer pixels, String name){
         executorService.execute(() ->
                 Image.encodePNG(pixels, WindowCreator.WIDTH, WindowCreator.HEIGHT, scale, name)
         );
     }
 
-    private String parseKey(int key){
-        switch (key){
-            case GLFW_KEY_W: return "FRONT";
-            case GLFW_KEY_S: return "BACK";
-            case GLFW_KEY_D: return "RIGHT";
-            case GLFW_KEY_A: return "LEFT";
+    private String parseKeys(int[] keys){
+        String keyString = "";
+
+        for (int i = 0; i < keys.length; i++) {
+            switch (keys[i]) {
+                case GLFW_KEY_W:
+                    keyString += "FRONT";
+                    break;
+                case GLFW_KEY_S:
+                    keyString += "BACK";
+                    break;
+                case GLFW_KEY_D:
+                    keyString += "RIGHT";
+                    break;
+                case GLFW_KEY_A:
+                    keyString += "LEFT";
+                    break;
+                case -1:
+                    keyString += "";
+                    break;
+            }
+
+            keyString += "_";
         }
 
-        return "";
+        return keyString;
     }
 }

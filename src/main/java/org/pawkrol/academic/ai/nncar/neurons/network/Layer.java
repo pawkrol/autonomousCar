@@ -58,6 +58,13 @@ public class Layer {
         }
     }
 
+    public void setWeights(float[][] weights){
+        for (int i = 0; i < perceptronContainers.length; i++){
+            Perceptron perceptron = perceptronContainers[i].getPerceptron();
+            perceptron.setWeights(weights[i]);
+        }
+    }
+
     public float getError(){
         float error = 0;
         for (PerceptronContainer pc : perceptronContainers){
