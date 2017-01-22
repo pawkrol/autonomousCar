@@ -16,43 +16,52 @@ import java.util.HashMap;
  */
 public class Simulator {
 
+    private static final String OUTPUT_CATALOGUE = "output/";
+    private static final String SCREENS_CATALOGUE = "screens/";
+    private static final String WEIGHTS_CATALOGUE = "weights/";
+    private static final String WEIGHTS_MATRIX_FILE = "weights_20H_005.txt";
+
     public void init(){
         checkAndMakeOutputCatalogs();
 
-        NetManager netManager = new NetManager(576, new int[]{30, 4}, .6f, new SigmoidFunction());
-        Backpropagation backpropagation = new Backpropagation(netManager);
-
-        RenderManager renderManager = new RenderManager(netManager);
+        NetManager netManager = null;
+        Backpropagation backpropagation = null;
+        RenderManager renderManager = null;
 
         if (isWeightMatrixAvaliable()){
             System.out.println("Loading weighs into net");
-            try {
-                netManager.loadWeights(new File("output/weights/weights.txt"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            netManager = new NetManager(OUTPUT_CATALOGUE + WEIGHTS_CATALOGUE + WEIGHTS_MATRIX_FILE,
+                                            .6f, new SigmoidFunction());
             System.out.println("Loading weighs finished");
+
+            renderManager = new RenderManager(netManager);
 
             renderManager.setAutonomusMode(true);
         } else {
             if (areScreensAvaliable()){
+                netManager = new NetManager(576, new int[]{20, 4}, .6f, new SigmoidFunction());
+                backpropagation = new Backpropagation(netManager);
+
+                renderManager = new RenderManager(netManager);
+
                 System.out.println("Obtaining learning data");
                 float[][] input = createLearningInputData();
                 float[][] output = createLearningOutputData();
 
                 System.out.println("Learning");
-                backpropagation.learn(input, output, 0.001, 10000);
+                backpropagation.learn(input, output, 0.000001, 100000);
                 System.out.println("Learned");
 
                 System.out.println("Saving weights");
                 try {
-                    netManager.saveWeights("output/weights/weights.txt");
+                    netManager.saveWeights(OUTPUT_CATALOGUE + WEIGHTS_CATALOGUE + WEIGHTS_MATRIX_FILE);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
                 renderManager.setAutonomusMode(true);
             } else {
+                renderManager = new RenderManager(null);
                 System.out.println("Switching to normal mode - press <space> to create learning images");
             }
         }
@@ -61,12 +70,12 @@ public class Simulator {
     }
 
     private boolean isWeightMatrixAvaliable(){
-        File weights = new File("output/weights/weights.txt");
+        File weights = new File(OUTPUT_CATALOGUE + WEIGHTS_CATALOGUE + WEIGHTS_MATRIX_FILE);
         return weights.exists();
     }
 
     private boolean areScreensAvaliable(){
-        File screens = new File("output/screens/");
+        File screens = new File(OUTPUT_CATALOGUE + SCREENS_CATALOGUE);
         if (screens.isDirectory()){
             String[] files = screens.list();
 
@@ -79,24 +88,24 @@ public class Simulator {
     }
 
     private void checkAndMakeOutputCatalogs(){
-        File outputs = new File("output/");
+        File outputs = new File(OUTPUT_CATALOGUE);
         if (!outputs.exists()){
             outputs.mkdir();
         }
 
-        File screens = new File("output/screens/");
+        File screens = new File(OUTPUT_CATALOGUE + SCREENS_CATALOGUE);
         if (!screens.exists() && outputs.exists()){
             screens.mkdir();
         }
 
-        File weights = new File("output/weights/");
+        File weights = new File(OUTPUT_CATALOGUE + WEIGHTS_CATALOGUE);
         if (!weights.exists() && outputs.exists()){
             weights.mkdir();
         }
     }
 
     private float[][] createLearningInputData(){
-        File screens = new File("output/screens/");
+        File screens = new File(OUTPUT_CATALOGUE + SCREENS_CATALOGUE);
 
         String[] files = screens.list();
         if (files == null) return null;
@@ -104,7 +113,7 @@ public class Simulator {
         float[][] inputData = new float[files.length][];
         for (int i = 0; i < files.length; i++){
             Image image = new Image();
-            image.load("output/screens/" + files[i], Image.Type.TYPE_GREY);
+            image.load(OUTPUT_CATALOGUE + SCREENS_CATALOGUE + files[i], Image.Type.TYPE_GREY);
 
             inputData[i] = new float[image.getImage().capacity()];
             for (int j = 0; j < image.getImage().capacity(); j++){
@@ -116,7 +125,7 @@ public class Simulator {
     }
 
     private float[][] createLearningOutputData(){
-        File screens = new File("output/screens/");
+        File screens = new File(OUTPUT_CATALOGUE + SCREENS_CATALOGUE);
 
         String[] files = screens.list();
         if (files == null) return null;

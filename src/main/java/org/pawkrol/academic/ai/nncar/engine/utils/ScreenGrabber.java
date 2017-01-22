@@ -79,9 +79,10 @@ public class ScreenGrabber {
     }
 
     private void saveScreenshot(ByteBuffer pixels, String name){
-        executorService.execute(() ->
-                Image.encodePNG(pixels, WindowCreator.WIDTH, WindowCreator.HEIGHT, scale, name)
-        );
+        executorService.execute(() -> {
+            java.awt.image.BufferedImage img = Image.encode(pixels, WindowCreator.WIDTH, WindowCreator.HEIGHT, scale);
+            Image.save(img, name);
+        });
     }
 
     private String parseKeys(int[] keys){

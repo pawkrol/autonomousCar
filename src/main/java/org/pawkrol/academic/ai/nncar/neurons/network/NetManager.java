@@ -12,6 +12,17 @@ public class NetManager {
     private int netInputsNumber;
     private float eta;
 
+    public NetManager(String file, float eta, ActivationFunction function){
+        this.eta = eta;
+        this.function = function;
+
+        try {
+            loadNetwork(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     // structure ex. {3, 2, 1} where 3 and 2 are numbers of perceptrons in hidden layers
     // and 1 is a number of perceptrons in output layer
     public NetManager(int netInputsNumber, int[] structure, float eta, ActivationFunction function){
@@ -92,26 +103,56 @@ public class NetManager {
         }
     }
 
-    public void loadWeights(File weights) throws IOException {
-        FileReader fileReader = new FileReader(weights);
+    public void loadNetwork(String location) throws IOException {
+        File weightsFile = new File(location);
+
+        FileReader fileReader = new FileReader(weightsFile);
         BufferedReader reader = new BufferedReader(fileReader);
 
-        String line;
-        for (Layer l : layers){
-            float[][] ws = new float[l.getSize()][];
+        //read inputs number
+        String line = reader.readLine();
+        netInputsNumber = Integer.parseInt(line);
 
-            for (int i = 0; i < l.getSize(); i++){
+        //read layers amount
+        line = reader.readLine();
+        int layersNumber = Integer.parseInt(line);
+        hiddenLayersNumber = layersNumber - 1;
+
+        //create layers array
+        layers = new Layer[layersNumber];
+
+        int perceptronInputs = netInputsNumber;
+
+        for (int i = 0; i < layersNumber; i++){
+            //read perceptrons in layer amount
+            line = reader.readLine();
+            int perceptronsNumber = Integer.parseInt(line);
+
+            //create layer itself
+            layers[i] = new Layer(perceptronsNumber);
+            layers[i].createPerceptrons(perceptronInputs, eta, function);
+            perceptronInputs = layers[i].getSize();
+
+            //get created perceptrons containers
+            PerceptronContainer[] containers = layers[i].getPerceptronContainers();
+
+            for (int j = 0; j < perceptronsNumber; j++){
+                //read weights and split them
                 line = reader.readLine();
-                String tokens[] = line.split("\\s+");
+                String weightsString[] = line.split("\\s+");
 
-                ws[i] = new float[tokens.length];
-                for (int j = 0; j < tokens.length; j++) {
-                    ws[i][j] = Float.parseFloat(tokens[j]);
+                //parse weights
+                float[] weights = new float[weightsString.length - 1];
+                for (int w = 0; w < weightsString.length - 1; w++){
+                    weights[w] = Float.parseFloat(weightsString[w]);
                 }
 
-                l.setWeights(ws);
-            }
+                containers[j].getPerceptron().setWeights(weights);
 
+                float bias = Float.parseFloat(weightsString[weightsString.length - 1]);
+                containers[j].getPerceptron().setBias(bias);
+
+            }
         }
     }
 
@@ -124,16 +165,32 @@ public class NetManager {
         FileWriter writer = new FileWriter(weightsFile);
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
 
+        //write network input number
+        bufferedWriter.write("" + netInputsNumber);
+        bufferedWriter.newLine();
+
+        //write layers amount
+        bufferedWriter.write("" + (hiddenLayersNumber + 1));
+        bufferedWriter.newLine();
+
         for (Layer l : layers){
             PerceptronContainer[] containers = l.getPerceptronContainers();
-            for (PerceptronContainer c : containers){
-                float[] ws = c.getPerceptron().getWeights();
 
-                String line = "";
+            //write perceptrons in layer amount
+            bufferedWriter.write("" + (containers.length));
+            bufferedWriter.newLine();
+
+            String line;
+            for (PerceptronContainer c : containers){
+                line = "";
+
+                float[] ws = c.getPerceptron().getWeights();
                 for (float w : ws){
                     line += w + " ";
                 }
+                line += c.getPerceptron().getBias();
 
+                //write line with perceptron weights separated by space
                 bufferedWriter.write(line);
                 bufferedWriter.newLine();
             }

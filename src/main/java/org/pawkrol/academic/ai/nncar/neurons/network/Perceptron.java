@@ -21,8 +21,6 @@ public class Perceptron {
         Random random = new Random();
         initWeights(random);
         initBias(random);
-
-      //  System.out.println(Arrays.toString(weights) + " + " + bias);
     }
 
     public Perceptron calculateOutput(float[] inputs){
@@ -62,11 +60,11 @@ public class Perceptron {
         weights = new float[numberOfInputs];
 
         for (int i = 0; i < weights.length; i++){
-            weights[i] = random.nextFloat() * 0.3f;
+            weights[i] = random.nextFloat() * 0.5f;
         }
     }
 
     private void initBias(Random random){
-        bias = random.nextFloat() * 0.3f;
+        bias = random.nextFloat() * 0.9f;
     }
 }

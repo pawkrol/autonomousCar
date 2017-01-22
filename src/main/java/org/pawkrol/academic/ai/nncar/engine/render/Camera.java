@@ -38,14 +38,14 @@ public class Camera {
 
         mouseListener.init();
 
-        position = new Vector3f(8.f, .5f, 0);
+        position = new Vector3f(8.f, 1f, 0);
         front = new Vector3f(0, 0, 1);
         up = new Vector3f(0, 1, 0);
 
         pitchLimit = 1.5f;
         tiltFactor = .8f;
         speed = .4f;
-        rotationSpeed = .07f;
+        rotationSpeed = .09f;
     }
 
     public void update(){
@@ -57,19 +57,25 @@ public class Camera {
     }
 
     public void move(MoveDir dir, float interval){
-        if (dir == MoveDir.FRONT){
-            position.add(front.x * speed * interval, front.y * speed * interval, front.z * speed * interval); //front.y => 0.f -> for game walk
-        } else if (dir == MoveDir.BACK){
-            position.sub(front.x * speed * interval, front.y * speed * interval, front.z * speed * interval);
-        }
-
         if(carMode){
+            if (dir == MoveDir.FRONT){
+                position.add(front.x * speed * interval, 0, front.z * speed * interval); //front.y => 0.f -> for game walk
+            } else if (dir == MoveDir.BACK){
+                position.sub(front.x * speed * interval, 0, front.z * speed * interval);
+            }
+
             if (dir == MoveDir.RIGHT) {
                 rotationAngle += rotationSpeed * interval;
             } else if (dir == MoveDir.LEFT) {
                 rotationAngle -= rotationSpeed * interval;
             }
         } else {
+            if (dir == MoveDir.FRONT){
+                position.add(front.x * speed * interval, front.y * speed * interval, front.z * speed * interval); //front.y => 0.f -> for game walk
+            } else if (dir == MoveDir.BACK){
+                position.sub(front.x * speed * interval, front.y * speed * interval, front.z * speed * interval);
+            }
+
             if (dir == MoveDir.RIGHT) {
                 position.sub(new Vector3f(front).cross(up).normalize().mul(speed * interval));
             } else if (dir == MoveDir.LEFT) {
@@ -136,8 +142,12 @@ public class Camera {
     private void carModeUpdate(){
         yaw = rotationAngle;
 
-        front.x = (float) Math.sin(yaw);
-        front.z = (float) Math.cos(yaw);
+//        front.x = (float) Math.sin(yaw);
+//        front.z = (float) Math.cos(yaw);
+        pitch = 3.5f;
+        front.x = (float) (Math.cos(pitch) * Math.sin(yaw));
+        front.y = (float) (Math.sin(pitch));
+        front.z = (float) (Math.cos(pitch) * Math.cos(yaw));
         front.normalize();
     }
 }

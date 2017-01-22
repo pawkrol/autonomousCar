@@ -16,7 +16,6 @@ import org.pawkrol.academic.ai.nncar.neurons.network.NetManager;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,10 +37,8 @@ public class RenderManager{
 
     private int lastKey[] = {GLFW_KEY_W, -1};
 
-    private FrameBuffer frameBuffer;
     private DefaultShader defaultShader;
     private Camera camera;
-    private RenderObject carObject;
 
     private ScreenGrabber grabber;
     private boolean grabbingMode = false;
@@ -62,8 +59,6 @@ public class RenderManager{
 
         camera = new Camera(new MouseListener(windowHandle));
 
-        frameBuffer = new FrameBuffer(WindowCreator.WIDTH, WindowCreator.HEIGHT);
-
         defaultShader = new DefaultShader();
         defaultShader.start();
         defaultShader.loadProjectionMatrix(
@@ -71,10 +66,7 @@ public class RenderManager{
         );
         defaultShader.stop();
 
-        carObject = createCarObject();
-
         renderObjects = new ArrayList<>();
-        renderObjects.add(carObject);
         renderObjects.add(createRoadObject());
 
         keyboardListener.registerOnReleaseAction(this::keyReleaseListener);
@@ -83,7 +75,7 @@ public class RenderManager{
             camera.switchMode();
         }
 
-        grabber = new ScreenGrabber(40, 1f);
+        grabber = new ScreenGrabber(40, .5f);
         grabber.init();
     }
 
@@ -98,15 +90,12 @@ public class RenderManager{
         if (autonomusMode) {
             ByteBuffer pixels = grabber.invoke(interval);
             if (pixels != null) {
-                float[] image = new float[(WindowCreator.WIDTH / 40) * (WindowCreator.HEIGHT / 40)];
+                BufferedImage img = Image.encode(pixels, WindowCreator.WIDTH, WindowCreator.HEIGHT, 40);
+                float[] image = new float[img.getWidth() * img.getWidth()];
                 int j = 0;
-                for(int x = 0; x < WindowCreator.WIDTH; x += 40) {
-                    for (int y = 0; y < WindowCreator.HEIGHT; y += 40) {
-                        int i = (x + (WindowCreator.WIDTH * y)) * 3;
-                        int r = pixels.get(i) & 0xFF;
-                        int g = pixels.get(i + 1) & 0xFF;
-                        int b = pixels.get(i + 2) & 0xFF;
-                        image[j++] = (((b | g << 8 | r << 16) / 3) & 0xFF) / 255.f ;
+                for(int x = 0; x < img.getWidth(); x++) {
+                    for (int y = 0; y < img.getHeight(); y++) {
+                        image[j++] = img.getData().getSampleFloat(x, y, 0) / 255.f;
                     }
                 }
                 float[] output = netManager.propagateInput(image).getOutputs();
@@ -116,12 +105,6 @@ public class RenderManager{
     }
 
     public void render(){
-//        if (autonomusMode) {
-//            frameBuffer.bind();
-//            scene();
-//            frameBuffer.unbind();
-//        }
-
         scene();
     }
 
@@ -142,7 +125,8 @@ public class RenderManager{
     private void scene(){
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(.3f, .7f, .8f, 0.f);
+//        glClearColor(.3f, .7f, .8f, 0.f);
+        glClearColor(0.f, 0.f, 0.f, 0.f);
 
         defaultShader.start();
         defaultShader.loadViewMatrix(Matrices.crateViewMatrix(camera));
@@ -173,14 +157,19 @@ public class RenderManager{
     }
 
     private void processNetworkOutput(float[] output, float interval){
-        System.out.println(output[0] + ", " + output[1] + ", " + output[2] + ", " + output[3]);
+        System.out.println(Math.round(output[0]) + ", " + Math.round(output[1])
+                                        + ", " + Math.round(output[2]) + ", " + Math.round(output[3]));
 //        carObject.getPosition().sub(0, 0, .1f);
 //        carObject.getPosition().add(0, 0, .1f);
 //        carObject.getRotation().set(carObject.getRotation().angle + .01f, 0, 1, 0);
 //        carObject.getRotation().set(carObject.getRotation().angle - .01f, 0, 1, 0);
-//        if (Math.round(output[0]) == 1){
-//            camera.move(Camera.MoveDir.FRONT, interval * 30);
-//        }
+        if (Math.round(output[2]) == 1){
+            camera.move(Camera.MoveDir.RIGHT, interval * 150);
+        }
+
+        if (Math.round(output[0]) == 1){
+            camera.move(Camera.MoveDir.FRONT, interval * 20);
+        }
     }
 
     private void grabAndSaveScreenshot(float interval){
@@ -201,20 +190,9 @@ public class RenderManager{
         grabber.invoke(interval, lastKey, true);
     }
 
-    private RenderObject createCarObject(){
-        Mesh carMesh = OBJLoader.load("objects/random.obj");
-        carMesh.setTexture(TextureLoader.loadTexture("textures/arrow.png", Image.Type.TYPE_NOALPHA));
-        return new RenderObject(
-                carMesh,
-                new Vector3f(0, 0, 0),
-                new Vector3f(.2f, .2f, .2f),
-                new AxisAngle4f(0, 0, 0, 0)
-        );
-    }
-
     private RenderObject createRoadObject(){
         Mesh roadMesh = OBJLoader.load("objects/road.obj");
-        roadMesh.setTexture(TextureLoader.loadTexture("textures/road.png", Image.Type.TYPE_ALPHA));
+        roadMesh.setTexture(TextureLoader.loadTexture("textures/road3.png", Image.Type.TYPE_ALPHA));
         return new RenderObject(
                 roadMesh,
                 new Vector3f(0, 0, 0),

@@ -74,7 +74,7 @@ public class Image {
         stbi_image_free(image);
     }
 
-    public static void encodePNG(ByteBuffer buffer, int width, int height, int scale, String name) {
+    public static java.awt.image.BufferedImage encode(ByteBuffer buffer, int width, int height, int scale) {
         java.awt.image.BufferedImage image =
                 new java.awt.image.BufferedImage(width / scale, height / scale, BufferedImage.TYPE_BYTE_GRAY);
 
@@ -85,11 +85,14 @@ public class Image {
                 int r = buffer.get(i) & 0xFF;
                 int g = buffer.get(i + 1) & 0xFF;
                 int b = buffer.get(i + 2) & 0xFF;
-//                image.setRGB(x / scale, (height - (y + 1)) / scale, b | g << 8 | r << 16);
-                image.setRGB(x / scale, (height - (y + 1)) / scale, (b | g << 8 | r << 16) / 3);
+                image.setRGB(x / scale, (height - (y + 1)) / scale, b | g << 8 | r << 16);
             }
         }
 
+        return image;
+    }
+
+    public static void save(java.awt.image.BufferedImage image, String name){
         try {
             ImageIO.write(image, "PNG", new File("output/screens/" + name));
         } catch (IOException e) {
